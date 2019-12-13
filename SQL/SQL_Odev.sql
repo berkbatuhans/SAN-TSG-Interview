@@ -47,58 +47,16 @@ CREATE TABLE dbo.UserAddresses -- dbo.UserAddresses adında yeni bir tablo oluş
                       -- 1 - 8000 karakter arasında karakter tutabilir. 
                       -- Her karakter 1 byte alan kaplar.
 )
---3. Sorgu -- INSERT komutu ile dbo.Users tablosuna 
-           -- veri yazacağımız alanları sıralayıp  (Name,Surname)
-           -- VALUES komutuyle eklenecek verileri ("Talih", "Bayram") yazıyoruz. 
-INSERT INTO dbo.Users (Name,Surname) VALUES ("Talih", "Bayram")
---4. Sorgu -- INSERT komutu ile dbo.UserAddresses tablosuna 
-           -- veri yazacağımız alanları sıralayıp (User_ID, AddressText, City, Country) 
-           -- VALUES komutuyle eklenecek verileri ("1", "asel Sok, no:3 4.levent", "Istanbul", "Türkiye") yazıyoruz. 
-INSERT INTO dbo.UserAddresses (User_ID, AddressText, City, Country) VALUES ("1", "asel Sok, no:3 4.levent", "Istanbul", "Türkiye")
---5. Sorgu 
-SELECT Name, Surname
-FROM Users U
-WHERE Name = 'Berk' 
-AND NOT EXISTS (
-SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
-)
--- Soru 1: Sorgular sırasıyla ne işe yarıyor açıklar mısın ?
--- Soru 2: Yaratılan iki tablo arasında nasıl bir ilişki bulunmaktadır veya bulunmalıdır ?
--- Cevap: One to many (Bir'e çok) ilişki bulunmalıdır.
--- Soru 3: 5’inci sorgunun eğer daha performanslı çalışmasını istesek çözüm önerilerin neler olur ?
--- Cevap:  1.Tablolardaki ID alanına Primary Key verilmeli - CLUSTERED INDEX (FİZİKSEL OLARAK SIRALANIR)
-        -- EXECUTE sp_helpindex tabloAdi
-        -- EXECUTE sp_helpindex Users
-        -- EXECUTE sp_helpindex UserAddresses
---         2.Index verilmeli.
---!(ARA)   3.SELECT * çekilmemeli ihtiyaç olan sütunları iste! 
---!(ARA)   4.Alt Sorgu yerine JOIN KULLAN - Okunaklı ve anlaşılır sorgular yazmak için performans farkı yok.
---!(ARA)   5.JOIN İÇEREN TABLODA boyutu sınırlamak için where kullan.
--- SELECT Name, Surname
--- FROM Users U
--- WHERE Name = 'Berk' 
--- AND NOT EXISTS (
--- SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
--- )
-SELECT
-    DB_NAME(SP.DBID) AS VERITABANI,
-    EST.TEXT AS SORGU,
-    CPU,
-    PHYSICAL_IO AS DISK_OKUMA,
-    MEMUSAGE AS HAFIZA_KULLANIM
-FROM
-    SYS.SYSPROCESSES AS SP
-    CROSS APPLY SYS.DM_EXEC_SQL_TEXT(SP.SQL_HANDLE) AS EST
 
+-- CLUSTERED INDEX - TANIMLANMAMIŞ TABLOLAR
 
-
-CREATE TABLE dbo.Users
+CREATE TABLE dbo.Users2
 (
 [ID] INT IDENTITY(1,1) NOT NULL,
 [Name] varchar(20),
 [Surname] varchar(20)
 )
-CREATE TABLE dbo.UserAddresses
+CREATE TABLE dbo.UserAddresses2
 (
 [ID] INT IDENTITY(1,1) NOT NULL,
 [User_ID] INT,
@@ -106,12 +64,20 @@ CREATE TABLE dbo.UserAddresses
 [City] varchar(30),
 [Country] varchar(30)
 )
-INSERT INTO dbo.Users (Name,Surname) VALUES ('Talih', 'Bayram')
-INSERT INTO dbo.UserAddresses (User_ID, AddressText, City, Country) VALUES (1, 'asel Sok, no:3 4.levent', 'Istanbul', 'Türkiye')
-
+INSERT INTO dbo.Users2 (Name,Surname) VALUES ('Talih', 'Bayram')
+INSERT INTO dbo.UserAddresses2 (User_ID, AddressText, City, Country) VALUES (1, 'asel Sok, no:3 4.levent', 'Istanbul', 'Türkiye')
+SET STATISTICS IO ON
+SET STATISTICS TIME ON
 SELECT Name, Surname
-FROM Users U
+FROM Users2 U
 WHERE Name = 'Berk' 
 AND NOT EXISTS (
-SELECT TOP 1 * FROM UserAddresses UA WHERE U.ID = UA.User_ID
+SELECT TOP 1 * FROM UserAddresses2 UA WHERE U.ID = UA.User_ID
 )
+
+DECLARE @ID INT = 1
+WHILE (@ID < 5000)
+BEGIN
+    INSERT INTO dbo.Users2 SELECT 'Berk','ŞAKAR'+CAST(@ID as [varchar](20))
+    SET @ID+=1
+END

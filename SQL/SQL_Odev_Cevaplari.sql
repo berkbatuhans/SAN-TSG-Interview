@@ -35,7 +35,7 @@ CREATE TABLE dbo.UserAddresses -- dbo.UserAddresses adında yeni bir tablo oluş
                                 -- ID alanı int ile sayısal değer içerir. 
                                 -- IDENTITY(başlama degeri,artış miktarı) ile 1'er 1'er otomatik artması sağlanmış 
                                 -- NOT NULL ile boş bırakılamaz olduğu belirtilmiş.
-[User_ID] int CONSTRAINT FK_UserAddresses_Users FOREIGN KEY(User_ID) REFERENCES Users(ID),                  
+[User_ID] INT CONSTRAINT FK_UserAddresses_Users FOREIGN KEY(User_ID) REFERENCES Users(ID),                  
                                 -- TODO: FOREIGN KEY EKSIK TANIMLAMASI YAPILMALI!
                                 -- One-to-many (Bir'e çok) ilişki bulunmalıdır.
 [AddressText] varchar(100), -- AddressText alanı 100 karakter ile sınırlandırılmış. 
@@ -74,12 +74,22 @@ INSERT INTO dbo.UserAddresses (User_ID, AddressText, City, Country) VALUES (1, '
 --5. Sorgu
 -- Adı Berk ve adres kaydı olmayan kullanıcıların Name, Surname bilgilerini listele.
 
+
+SET STATISTICS IO ON -- Sorgu istatistiklerini getirir
+SET STATISTICS TIME ON -- Sorgunun ne kadar sürede geldiğini gösterir.
 SELECT Name, Surname
 FROM Users U
 WHERE Name = 'Berk' 
 AND NOT EXISTS (
 SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
 )
+
+-- JOIN ile sorgunun yazılımı aynı sonuçları döndürüyor
+
+SELECT Name,Surname
+    FROM Users U 
+        LEFT OUTER JOIN UserAddresses UA ON UA.User_ID = U.ID
+WHERE U.Name = 'Berk' AND UA.User_ID IS NULL
 
 -- Soru 1: Sorgular sırasıyla ne işe yarıyor açıklar mısın ?
 -- Cevap: Sorguların sırasıyla yukarıda açıklamalarını yaptım.
@@ -89,14 +99,24 @@ SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
 -- Soru 3: 5’inci sorgunun eğer daha performanslı çalışmasını istesek çözüm önerilerin neler olur ?
 -- Cevap: 
     -- 1. Tablolardaki ID alanına Primary Key verilmeli - CLUSTERED INDEX (FİZİKSEL OLARAK SIRALANIR)
+        -- EXECUTE sp_helpindex tabloAdi
+        -- EXECUTE sp_helpindex Users
+        -- EXECUTE sp_helpindex UserAddresses
     -- 2. Primary key verdiğimizde Clustered Index olmuş oluyor.
     -- 3. Bir tabloda 1 Clustered Index bulunabilir.
+    -- 4. SELECT * çekilmemeli ihtiyaç olan sütunları yazmalıyız!
+    -- 5. Execution Plan incelenmeli
+    
+    
+    
+ -- SORGU ÜZERİNDE TESTLERİM   
+    
     -- TODO: User_ID Non Clustered Index ver dene!
     -- CREATE INDEX [IX_User_ID] ON [dbo].[UserAddresses] ([User_ID] ASC)
     -- INDEX SORGULAMA
     -- EXECUTE sp_helpindex UserAddresses
-    EXECUTE sp_helpindex Users
     -- CREATE NONCLUSTERED INDEX [IX_Name] ON [dbo].[Users] ([Name] ASC)
+    -- EXECUTE sp_helpindex Users
     -- INDEX SILME
     -- DROP INDEX IX_User_ID ON UserAddresses
 IF NOT EXISTS(SELECT TOP 1 Name, Surname
@@ -115,3 +135,23 @@ BEGIN
 PRINT 'Adres Kaydı Var';
 END
 
+DECLARE @ID INT = 1
+WHILE (@ID < 5000)
+BEGIN
+    INSERT INTO dbo.Users SELECT 'Berk','ŞAKAR'+CAST(@ID as [varchar](20))
+    SET @ID+=1
+END
+
+
+
+
+--Index Bozulmaları
+DBCC showcontig('Users')
+DBCC showcontig('UserAddresses')
+--INDEX BOZMAK İÇİN UPDATE SORGUSU İLE DEĞİŞTİR!
+--REBUILD: Yeniden İnşa et
+ALTER INDEX Users_PK ON Users REBUILD WITH(online=off)
+ALTER INDEX IX_Name ON Users REBUILD WITH(online=off)
+--REORGANIZE: Yeniden Düzenle
+ALTER INDEX Users_PK ON Users REORGANIZE
+ALTER INDEX IX_Name ON Users REORGANIZE
