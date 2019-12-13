@@ -99,7 +99,7 @@ SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
     -- CREATE NONCLUSTERED INDEX [IX_Name] ON [dbo].[Users] ([Name] ASC)
     -- INDEX SILME
     -- DROP INDEX IX_User_ID ON UserAddresses
-IF EXISTS(SELECT TOP 1 Name, Surname
+IF NOT EXISTS(SELECT TOP 1 Name, Surname
             FROM Users U
             WHERE Name = 'Berk' 
             AND 
