@@ -62,9 +62,10 @@ WHERE Name = 'Talih' AND NOT EXISTS(
 SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
 )
 
-IF (SELECT COUNT(*)
+SET STATISTICS IO ON
+IF (SELECT Count(*)
 FROM Users U
-WHERE Name = 'Oguz' AND NOT EXISTS(
+WHERE Name = 'Berk' AND NOT EXISTS(
 SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
 )) > 0 BEGIN
 PRINT 'Adres Tablosunda kaydı yok!' END
@@ -72,6 +73,7 @@ ELSE BEGIN
 PRINT 'Adres tablosunda kaydı var!'
 END
 
+SET STATISTICS IO ON
 SELECT Name, Surname 
     FROM Users U 
            INNER JOIN UserAddresses UA on U.ID = UA.User_ID

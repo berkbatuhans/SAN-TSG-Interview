@@ -62,17 +62,33 @@ WHERE Name = 'Berk'
 AND NOT EXISTS (
 SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
 )
-
 -- Soru 1: Sorgular sırasıyla ne işe yarıyor açıklar mısın ?
 -- Soru 2: Yaratılan iki tablo arasında nasıl bir ilişki bulunmaktadır veya bulunmalıdır ?
 -- Cevap: One to many (Bir'e çok) ilişki bulunmalıdır.
 -- Soru 3: 5’inci sorgunun eğer daha performanslı çalışmasını istesek çözüm önerilerin neler olur ?
--- Cevap:  1.Tablolardaki ID alanına Primary Key verilmeli - CLUSTERED INDEX (FİZİKSEL OLARAK SIRALANIR) - Execute sp_helpindex tabloAdi
+-- Cevap:  1.Tablolardaki ID alanına Primary Key verilmeli - CLUSTERED INDEX (FİZİKSEL OLARAK SIRALANIR)
+        -- EXECUTE sp_helpindex tabloAdi
+        -- EXECUTE sp_helpindex Users
+        -- EXECUTE sp_helpindex UserAddresses
 --         2.Index verilmeli.
 --!(ARA)   3.SELECT * çekilmemeli ihtiyaç olan sütunları iste! 
---!(ARA)   4.Alt Sorgu yerine JOIN KULLAN
+--!(ARA)   4.Alt Sorgu yerine JOIN KULLAN - Okunaklı ve anlaşılır sorgular yazmak için performans farkı yok.
 --!(ARA)   5.JOIN İÇEREN TABLODA boyutu sınırlamak için where kullan.
-
+-- SELECT Name, Surname
+-- FROM Users U
+-- WHERE Name = 'Berk' 
+-- AND NOT EXISTS (
+-- SELECT TOP 1 1 FROM UserAddresses UA WHERE U.ID = UA.User_ID
+-- )
+SELECT
+    DB_NAME(SP.DBID) AS VERITABANI,
+    EST.TEXT AS SORGU,
+    CPU,
+    PHYSICAL_IO AS DISK_OKUMA,
+    MEMUSAGE AS HAFIZA_KULLANIM
+FROM
+    SYS.SYSPROCESSES AS SP
+    CROSS APPLY SYS.DM_EXEC_SQL_TEXT(SP.SQL_HANDLE) AS EST
 
 
 

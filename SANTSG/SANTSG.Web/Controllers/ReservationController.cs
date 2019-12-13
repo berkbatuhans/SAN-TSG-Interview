@@ -40,42 +40,11 @@ namespace SANTSG.Web.Controllers
             return rezervationCards.ToList();
         }
 
-
-        private const string FILE_NAME = "log.txt";
-
         // GET api/reservation/5
         [HttpGet("{id}", Name = nameof(GetReservation))]
         public IActionResult GetReservation(string id)
         {
-
-            //if (System.IO.File.Exists(FILE_NAME))
-            //{
-            //    using (StreamWriter w = System.IO.File.AppendText("log.txt"))
-            //    {
-            //        ReservationController.Log(id.ToString(), w);
-            //    }
-            //    //_logger.LogInformation($"{FILE_NAME} zaten var!");
-
-            //    return Ok(new
-            //    {
-            //        value = id + "merhaba"
-            //    });
-
-
-
-            //} else
-            //{
-            //    //_logger.LogInformation($"{FILE_NAME} yok!");
-
-            //    return NotFound(new
-            //    {
-            //        value = $"{FILE_NAME} yok!"
-            //    });
-            //}
-
             return new OkObjectResult($"{id}");
-
-
         }
 
         // POST api/values
@@ -125,7 +94,7 @@ namespace SANTSG.Web.Controllers
                 action = this.ControllerContext.RouteData.Values["action"].ToString(),
                 requestMethod = this.ControllerContext.HttpContext.Request.Method,
                 json = reservation,
-                success = true
+                success = true  
             });
         }
 
