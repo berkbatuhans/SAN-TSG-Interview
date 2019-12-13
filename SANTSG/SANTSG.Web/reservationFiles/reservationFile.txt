@@ -110,3 +110,35 @@ Request Method: POST
     }
 ]
 ---------------------------------------
+---------------------------------------
+17:31:21 - Friday, 13 December 2019
+Controller: Reservation
+Action: Post
+Request Method: POST
+---------------------------------------
+[
+    {
+        "operator": {
+            "code": "AMOR",
+            "name": "AMOR REISE GMBH"
+        },
+        "voucherNo": 0
+    }
+]
+---------------------------------------
+---------------------------------------
+17:31:27 - Friday, 13 December 2019
+Controller: Reservation
+Action: Post
+Request Method: POST
+---------------------------------------
+[
+    {
+        "operator": {
+            "code": "AMOR",
+            "name": "AMOR REISE GMBH"
+        },
+        "voucherNo": 0
+    }
+]
+---------------------------------------
