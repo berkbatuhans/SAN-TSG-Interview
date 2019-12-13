@@ -48,3 +48,19 @@ If the request is successful, it adds log records to the [**reservationFile.txt*
 
 Comments are added to the lines of code.
 
+#### How to use SQL Server with a Docker container this Image
+
+```ruby
+docker run -e ACCEPT_EULA=Y -e SA_PASSWORD=123456! -e TZ=Europe/Minsk -p 1433:1433 --name sqlserver -d microsoft/mssql-server-linux:latest
+```
+
+#### How to use [Azure Data Studio](https://docs.microsoft.com/en-us/sql/azure-data-studio/what-is?view=sql-server-ver15) 
+
+SQL Server Management Tool for Mac
+
+[Homebrew](https://formulae.brew.sh/cask/azure-data-studio)
+
+```ruby
+brew cask install azure-data-studio
+```
+
